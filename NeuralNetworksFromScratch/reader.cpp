@@ -15,7 +15,7 @@ int reverseINT(int i)
 
 
 
-std::vector<value*> read_labels(const std::string& file_loc)
+std::vector<value*> read_labels(const std::string& file_loc, int training_count)
 {
 	std::ifstream file;
 
@@ -35,11 +35,11 @@ std::vector<value*> read_labels(const std::string& file_loc)
 
 		std::vector<value*> labels;
 
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < training_count; i++)
 		{
 			uint8_t px = 0;
 			file.read((char*)&px, sizeof(char));
-			value* val = new value((int)px);
+			value* val = new value((int)px, "label");
 			labels.push_back(val);
 		}
 
@@ -50,7 +50,7 @@ std::vector<value*> read_labels(const std::string& file_loc)
 	}
 }
 
-mat read_images(const std::string& file_loc)
+mat read_images(const std::string& file_loc, int training_count)
 {
 
 	std::ifstream file;
@@ -79,14 +79,14 @@ mat read_images(const std::string& file_loc)
 
 		mat images;
 
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < training_count; i++)
 		{
 			std::vector<value*> image;
 			for (int j = 0; j < n_rows * n_cols; j++)
 			{
 				unsigned char px = 0;
 				file.read((char*)&px, sizeof(px));
-				value* val = new value((float)px);
+				value* val = new value((float)px, "pixel");
 				image.push_back(val);
 			}
 

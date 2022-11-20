@@ -17,6 +17,6 @@ public:
 private: 
 
     std::vector<value*> weights;
-    value* bias = new value(1.0f);
+    value* bias = new value(1.0f, "bias");
 
 };

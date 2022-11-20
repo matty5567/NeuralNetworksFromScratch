@@ -12,18 +12,19 @@
 
 int main() {
 	float LEARNING_RATE = 0.001f;
-	int EPOCHS = 10;
+	int EPOCHS = 20;
+	int NUM_IMAGES = 3;
 
-	mat train_images = read_images("C:\\coding\\NeuralNetworksFromScratch\\data\\t10k-images-idx3-ubyte");
-	std::vector<value*> train_labels = read_labels("C:\\coding\\NeuralNetworksFromScratch\\data\\t10k-labels-idx1-ubyte");
+	mat train_images = read_images("C:\\coding\\NeuralNetworksFromScratch\\data\\t10k-images-idx3-ubyte", NUM_IMAGES);
+	std::vector<value*> train_labels = read_labels("C:\\coding\\NeuralNetworksFromScratch\\data\\t10k-labels-idx1-ubyte", NUM_IMAGES);
 
 	assert(train_images.size() == train_labels.size());
 
-	Linear layer1 = Linear(784, 1);
-	//Linear layer2 = Linear(10, 1);
+	Linear layer1 = Linear(784, 256);
+	Linear layer2 = Linear(256, 128);
+	Linear layer3 = Linear(128, 10);
 
-
-	std::vector<Linear> layers = { layer1 };
+	std::vector<Linear> layers = { layer1, layer2, layer3 };
 
 
 	Model model = Model(layers);
@@ -33,29 +34,22 @@ int main() {
 		std::cout << "========= EPOCH: " << epoch + 1 << " ==============\n";
 		mat preds = model.forward(train_images);
 
+		mat softmax_preds = Math::softmax(preds);
+
+		value* train_loss = Math::categorical_cross_entropy(softmax_preds, train_labels);
+
+		std::cout << "train loss: " << train_loss->data << '\n';
+
+
 		model.zero_grad();
-
-		value* train_loss = Math::categorical_cross_entropy(preds, train_labels);
-
-		std::cout << "train loss" << train_loss->data << '\n';
-
-		// for (auto x: train_loss.children){std::cout << x.grad << " ";}
-		// std::cout << '\n';
-
 		train_loss->backward();
-
-		// for (auto x: train_loss.children){std::cout << x.grad << ' ';}
-		// std::cout << '\n' << '\n';
 
 		for (auto val: model.parameters())
 		{
-			//std::cout << "---------------" << '\n';
-			//std::cout << val->data << '\n';
+
 		 	val->data -= LEARNING_RATE * val->grad;
-			//std::cout << val->data << '\n';
 		}
 
-		//std::cout << train_loss.data << '\n';
 	}
 
 

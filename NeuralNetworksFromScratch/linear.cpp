@@ -3,7 +3,7 @@
 
 Linear::Linear(int inputSize, int outputSize) {
 
-
+	srand(time(NULL));
 	for (int i = 0; i < outputSize; i++) {
 		Neuron neuron = Neuron(inputSize);
 		neurons.push_back(neuron);
@@ -13,7 +13,6 @@ Linear::Linear(int inputSize, int outputSize) {
 
 
 mat Linear::forward(mat in) {
-
 
 	mat out;
 	out.resize(in.size());

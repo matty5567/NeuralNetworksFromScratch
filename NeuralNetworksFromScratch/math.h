@@ -13,57 +13,48 @@ public:
 
 	Math() {};
 
-	static mat matmul(mat a, mat b) 
-	{
-		int a_rows = a.size();
-		int b_rows = b.size();
-		int a_cols = a[0].size();
-		int b_cols = b[0].size();
-
-		assert(a_cols == b_rows);
-
-		std::cout << a_rows << " " << b_rows;
-
-		mat out;
-		out.resize(a_rows);
-		for (int i = 0; i < a_rows; i++) {
-			out[i].resize(b_cols);
-		}
-
-
-		for (int row = 0; row < a_rows; row++)
-		{
-			for (int col = 0; col < b_cols; col++)
-			{
-				for (int i = 0; i < a_cols; i++)
-				{
-					*out[row][col] = *out[row][col] + *(a[row][i]) * *(b[i][col]);
-				}
-			}
-		}
-		return out;
-	};
-
-	//static mat relu(tensor* x);
-
 	static value* categorical_cross_entropy(mat preds, std::vector<value*> labels)
 	{
 		assert(preds.size() == labels.size());
 
-		value* loss = new value();
+		value* loss = new value(0.0f, "loss");
 
-		for (int i = 0; i < preds.size(); i++) {
-			value* log_pred = preds[i][0]->log();
-			value* single_loss = new value(*log_pred * *(labels[i]));
+		// iterate over training examples in batch
+		for (int img = 0; img < preds.size(); img++) {
 
-			//std::cout << (preds[i][0].log() * labels[i]).data << '\n';
-			loss = new value(*loss - *single_loss);
+			int correctPred = labels[img]->data;
+			loss = *loss - preds[img][correctPred]->log();
 		}
-
 		return loss;
 	};
 
-	//static value softmax(mat input);
+	static mat softmax(mat input) 
+	{
 
-	
+		int num_categories = input[0].size();
+
+		mat out;
+		out.resize(input.size());
+
+		for (int i=0; i<input.size(); i++)
+		{
+			
+			value* exp_sum = new value();
+			
+			for (value* prob : input[i])
+			{
+				value* exp_prob = prob->exp();
+				exp_sum = *exp_sum + exp_prob;
+			}
+
+			for (int idx=0; idx < num_categories; idx++)
+			{
+				out[i].resize(num_categories);
+				value* exp_pred = input[i][idx]->exp();
+				value* recp_total_exp = exp_sum->pow(-1);
+				out[i][idx] = *exp_pred * recp_total_exp;
+			}
+		}
+		return out;
+	}
 };
